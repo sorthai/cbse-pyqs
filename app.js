@@ -4,6 +4,11 @@
   var MARKS_ORDER = ['1', '2', '3', '4', '5'];
   var WORDS = { '1': 'one-mark', '2': 'two-mark', '3': 'three-mark', '4': 'four-mark', '5': 'five-mark' };
 
+  // === HOMI DEEP LINK CONFIG ===
+  // Swap this ONE value when the real Homi app deep link arrives from the team.
+  // Used by both "Check answer on Homi" and "Get model answer on Homi" buttons on every question card.
+  var HOMI_DEEP_LINK = 'https://heyhomi.in';
+
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
@@ -70,7 +75,11 @@
     if (item.img) h += '<div class="q-fig"><img src="' + item.img + '" alt="figure" loading="lazy"></div>';
     h += '<div class="q-tags">';
     item.years.forEach(function (y) { h += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
-    h += '</div></div>';
+    h += '</div>';
+    h += '<div class="homi-actions">'
+      + '<a class="homi-btn" href="' + HOMI_DEEP_LINK + '" target="_blank" rel="noopener">Check answer on Homi</a>'
+      + '<a class="homi-btn solid" href="' + HOMI_DEEP_LINK + '" target="_blank" rel="noopener">Get model answer on Homi</a>'
+      + '</div></div>';
     return h;
   }
 

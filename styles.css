@@ -170,3 +170,14 @@ body {
 .hot-ch-link:active { opacity: .7; }
 .pattern-sec .q-card { margin-top: 6px; }
 .pattern-rest .q-card { margin-top: 12px; }
+
+/* Homi app deep-link actions on every question card */
+.homi-actions { display: flex; gap: 8px; margin-top: 14px; }
+.homi-btn {
+  flex: 1 1 0; text-align: center; padding: 11px 6px;
+  border-radius: 12px; font-size: 13.5px; font-weight: 700; line-height: 1.25;
+  text-decoration: none; border: 1.5px solid #16913e; color: #16913e; background: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+.homi-btn.solid { background: #16913e; color: #fff; }
+.homi-btn:active { transform: scale(.97); }
