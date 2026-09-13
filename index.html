@@ -6,39 +6,53 @@
 <title>Homi - Class 10 Maths Important Questions</title>
 <link rel="icon" href="homi-logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cookie&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>if (location.hash.indexOf('#/chapter') === 0) location.replace('app.html' + location.hash);</script>
 <style>
   html, body { height: 100%; margin: 0; overflow: hidden; }
   .hero { position: fixed; inset: 0; background: url(hero-left.png) center/cover no-repeat; }
-  .hero-inner {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
-    padding: 0 32px; text-align: center;
+  /* readability wash: fade the whole background, stronger through the text band */
+  .hero::after {
+    content: ''; position: absolute; inset: 0;
+    background:
+      linear-gradient(rgba(246,244,236,.35), rgba(246,244,236,.35)),
+      radial-gradient(ellipse 90% 46% at 50% 46%, rgba(246,244,236,.78) 0%, rgba(246,244,236,.38) 60%, transparent 85%);
   }
-  .hero-inner::before {
-    content: ''; position: absolute; left: 50%; top: 50%; width: 360px; height: 340px;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(ellipse, rgba(246,244,236,.85) 0%, rgba(246,244,236,.5) 55%, transparent 78%);
-    pointer-events: none;
+  @media (min-width: 820px) {
+    .hero { background-image: url(hero-full.png); }
+  }
+  .hero-inner {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    padding: 0 28px; text-align: center;
   }
   .headline {
-    position: relative; font-family: 'Archivo Black', sans-serif; font-weight: 400;
-    font-size: 40px; line-height: 1.08; color: #111; letter-spacing: -0.5px;
+    font-family: 'Cookie', cursive; font-weight: 400;
+    font-size: 62px; line-height: 1.05; color: #111;
+  }
+  .subline {
+    font-family: 'Cookie', cursive; font-weight: 400;
+    font-size: 30px; line-height: 1.15; color: #111;
   }
   .cta {
-    position: relative; font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 17px;
-    background: #111; color: #fff; text-decoration: none;
-    padding: 15px 38px; border-radius: 999px;
+    margin-top: 22px; font-family: 'Figtree', sans-serif; font-weight: 600; font-size: 15px;
+    background: #1c1c1c; color: #fff; text-decoration: none;
+    padding: 12px 34px; border-radius: 999px;
   }
   .cta:active { transform: scale(.97); }
+  @media (min-width: 820px) {
+    .headline { font-size: 108px; }
+    .subline { font-size: 46px; }
+    .cta { margin-top: 30px; font-size: 16px; padding: 13px 40px; }
+  }
 </style>
 </head>
 <body>
 <div class="hero">
   <div class="hero-inner">
-    <div class="headline">Most important previous year questions</div>
-    <a class="cta" href="app.html">Start practising</a>
+    <div class="headline">Most Important Question</div>
+    <div class="subline">Based on previous year papers</div>
+    <a class="cta" href="app.html">Start Studying</a>
   </div>
 </div>
 </body>
