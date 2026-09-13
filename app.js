@@ -20,7 +20,6 @@
     }
   }
 
-
   function formatQ(text) {
     var escd = esc(text);
     escd = escd.replace(/ (Reason\s*(?:\\\([^:]{0,14}|\(\s*R\s*\)\s*):)/, '<br>$1');
@@ -66,6 +65,60 @@
     return out;
   }
 
+  function qCardHtml(item) {
+    var h = '<div class="q-card"><div class="q-text">' + formatQ(item.q) + '</div>';
+    if (item.img) h += '<div class="q-fig"><img src="' + item.img + '" alt="figure" loading="lazy"></div>';
+    h += '<div class="q-tags">';
+    item.years.forEach(function (y) { h += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
+    h += '</div></div>';
+    return h;
+  }
+
+  // One true count: total times this pattern appeared across all 23 papers.
+  function groupAsked(g) {
+    return g.qs.reduce(function (s, x) { return s + (x.count || (x.apps ? x.apps.length : 1)); }, 0);
+  }
+
+  function byRecentThenCount(a, b) {
+    return (Math.max.apply(null, b.years.map(Number)) - Math.max.apply(null, a.years.map(Number)))
+      || ((b.count || 1) - (a.count || 1));
+  }
+
+  // A group rendered as: the latest year's question (verbatim) + a dropdown
+  // "asked N times in exam" revealing the rest of the similar questions.
+  function groupSectionHtml(g, opts) {
+    opts = opts || {};
+    var ex = g.qs.slice().sort(byRecentThenCount)[0];
+    var rest = g.qs.filter(function (qq) { return qq !== ex; }).sort(byRecentThenCount);
+    var asked = groupAsked(g);
+    var h = '<section class="marks-section pattern-sec">';
+    if (opts.chLink) h += '<a class="hot-ch-link" href="#/chapter/' + opts.chIdx + '">' + esc(opts.chName) + ' &rsaquo;</a>';
+    h += qCardHtml(ex);
+    if (rest.length) {
+      h += '<div class="pattern-rest" style="display:none">';
+      rest.forEach(function (item) { h += qCardHtml(item); });
+      h += '</div>';
+      h += '<button class="asked-toggle" type="button">asked ' + asked + ' times in exam <span class="pat-chev">&#9662;</span></button>';
+    } else {
+      h += '<div class="asked-pill">asked ' + asked + ' times in exam</div>';
+    }
+    h += '</section>';
+    return h;
+  }
+
+  function bindToggles() {
+    app.querySelectorAll('.asked-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var sec = btn.closest('.pattern-sec');
+        var restEl = sec.querySelector('.pattern-rest');
+        if (!restEl) return;
+        var open = restEl.style.display !== 'none';
+        restEl.style.display = open ? 'none' : '';
+        sec.classList.toggle('open', !open);
+      });
+    });
+  }
+
   function renderHome(filter) {
     var q = (filter || '').toLowerCase();
     var html = '';
@@ -73,17 +126,13 @@
     if (!q) {
       var tops = [];
       DATA.chapters.forEach(function (ch, i) {
-        (ch.groups || []).forEach(function (g) { tops.push({ ch: i, chName: ch.name, title: g.title || g.name, asked: g.asked }); });
+        (ch.groups || []).forEach(function (g) { tops.push({ ch: i, chName: ch.name, g: g, asked: groupAsked(g) }); });
       });
       tops.sort(function (a, b) { return b.asked - a.asked; });
-      html += '<div class="hot-head">Most asked in the exam</div><div class="hot-list">';
+      html += '<div class="hot-head">Most asked in the exam</div>';
       tops.slice(0, 8).forEach(function (t) {
-        html += '<a class="hot-row" href="#/chapter/' + t.ch + '">'
-          + '<div class="hot-info"><div class="hot-title">' + esc(t.title) + '</div>'
-          + '<div class="hot-ch">' + esc(t.chName) + '</div></div>'
-          + '<span class="tag asked">' + t.asked + 'x</span></a>';
+        html += groupSectionHtml(t.g, { chLink: true, chIdx: t.ch, chName: 'Ch ' + (t.ch + 1) + ' · ' + t.chName });
       });
-      html += '</div>';
     }
     html += '<div class="chapter-list">';
     DATA.chapters.forEach(function (ch, i) {
@@ -101,18 +150,9 @@
     });
     html += '</div>';
     app.innerHTML = html;
+    if (!q) { renderMath(); bindToggles(); }
     var input = document.getElementById('search');
     input.addEventListener('input', function () { renderHome(input.value); input.focus(); });
-  }
-
-  function qCardHtml(item) {
-    var h = '<div class="q-card"><div class="q-text">' + formatQ(item.q) + '</div>';
-    if (item.img) h += '<div class="q-fig"><img src="' + item.img + '" alt="figure" loading="lazy"></div>';
-    h += '<div class="q-tags">';
-    if (item.count > 1) h += '<span class="tag repeat">Repeated ' + item.count + 'x</span>';
-    item.years.forEach(function (y) { h += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
-    h += '</div></div>';
-    return h;
   }
 
   function renderChapter(idx, view) {
@@ -127,41 +167,12 @@
       + '<a class="view-tab' + (view === 'marks' ? ' active' : '') + '" href="#/chapter/' + idx + '/marks">By marks</a>'
       + '</nav>';
     if (view !== 'marks' && ch.groups) {
-      ch.groups.forEach(function (g, gi) {
-        var ex = g.qs.slice().sort(function (a, b) {
-          return (b.count - a.count) || (Math.max.apply(null, b.years.map(Number)) - Math.max.apply(null, a.years.map(Number)));
-        })[0];
-        var rest = g.qs.filter(function (qq) { return qq !== ex; });
-        html += '<section class="marks-section pattern-sec">'
-          + '<div class="pattern-head pat-toggle" data-pat="' + gi + '" role="button">'
-          + '<div class="pattern-top"><div class="pattern-name">' + esc(g.title || g.name) + '</div>'
-          + '<span class="pat-chev">&#9662;</span></div>'
-          + '<div class="pattern-meta"><span class="tag asked">asked ' + g.asked + ' times in 3 years</span>';
-        g.years.forEach(function (y) { html += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
-        html += '</div></div>'
-          + '<div class="pattern-body">';
-        if (ex) html += qCardHtml(ex);
-        html += '<div class="pattern-rest" style="display:none">';
-        rest.forEach(function (item) { html += qCardHtml(item); });
-        html += '</div>';
-        if (rest.length) html += '<button class="pat-toggle pat-more" data-total="' + g.qs.length + '" data-pat="' + gi + '">Show all ' + g.qs.length + ' questions</button>';
-        html += '</div></section>';
-      });
+      var gs = ch.groups.slice().sort(function (a, b) { return groupAsked(b) - groupAsked(a); });
+      gs.forEach(function (g) { html += groupSectionHtml(g); });
       app.innerHTML = html;
       renderMath();
+      bindToggles();
       window.scrollTo(0, 0);
-      app.querySelectorAll('.pat-toggle').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var sec = el.closest('.pattern-sec');
-          var restEl = sec.querySelector('.pattern-rest');
-          if (!restEl) return;
-          var open = restEl.style.display !== 'none';
-          restEl.style.display = open ? 'none' : '';
-          sec.classList.toggle('open', !open);
-          var btn = sec.querySelector('.pat-more');
-          if (btn) btn.textContent = open ? ('Show all ' + btn.getAttribute('data-total') + ' questions') : 'Show less';
-        });
-      });
       return;
     }
     html += '<nav class="marks-nav">';

@@ -146,3 +146,27 @@ body {
 .hot-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; border: 1px solid #e3ead9; border-radius: 14px; padding: 11px 14px; text-decoration: none; color: inherit; }
 .hot-title { font-weight: 600; font-size: 14px; color: #1e1e1d; line-height: 1.3; }
 .hot-ch { font-size: 12px; color: #878682; margin-top: 2px; }
+
+/* question-first most-asked redesign */
+.asked-toggle {
+  width: 100%; margin-top: 8px; padding: 12px 14px;
+  border-radius: 12px; border: 1.5px solid #cdeed8; background: #e5faed;
+  color: #16913e; font-weight: 700; font-size: 14px; cursor: pointer;
+  display: flex; justify-content: center; align-items: center; gap: 7px;
+  -webkit-tap-highlight-color: transparent;
+}
+.asked-toggle:active { transform: scale(.99); }
+.asked-toggle .pat-chev { transition: transform .15s; }
+.pattern-sec.open .asked-toggle .pat-chev { transform: rotate(180deg); }
+.asked-pill {
+  margin-top: 8px; display: inline-block;
+  background: #e5faed; color: #16913e; font-weight: 700; font-size: 12.5px;
+  border-radius: 999px; padding: 6px 12px;
+}
+.hot-ch-link {
+  display: inline-block; margin: 0 2px 2px;
+  font-size: 13px; font-weight: 700; color: #16913e; text-decoration: none;
+}
+.hot-ch-link:active { opacity: .7; }
+.pattern-sec .q-card { margin-top: 6px; }
+.pattern-rest .q-card { margin-top: 12px; }
