@@ -6,8 +6,8 @@
 
   // === HOMI DEEP LINK CONFIG ===
   // Real deep links from the Homi team. "Check answer" -> Evaluation screen, "Get model answer" -> Solution screen.
-  var HOMI_CHECK_LINK = 'https://link.staging.heyhomi.in/?screen=Evaluation&utm_source=google&utm_medium=cpa&utm_campaign=install-q2-2026&utm_content=banner-v1&utm_term=english';
-  var HOMI_MODEL_LINK = 'https://link.staging.heyhomi.in/?screen=Solution&utm_source=google&utm_medium=cpa&utm_campaign=install-q2-2026&utm_content=banner-v1&utm_term=english';
+  var HOMI_CHECK_LINK = 'https://link.heyhomi.in/?screen=Evaluation&utm_source=google&utm_medium=cpa&utm_campaign=install-q2-2026&utm_content=banner-v1&utm_term=english';
+  var HOMI_MODEL_LINK = 'https://link.heyhomi.in/?screen=Solution&utm_source=google&utm_medium=cpa&utm_campaign=install-q2-2026&utm_content=banner-v1&utm_term=english';
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
