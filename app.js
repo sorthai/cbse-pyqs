@@ -90,13 +90,42 @@
     input.addEventListener('input', function () { renderHome(input.value); input.focus(); });
   }
 
-  function renderChapter(idx) {
+  function qCardHtml(item) {
+    var h = '<div class="q-card"><div class="q-text">' + formatQ(item.q) + '</div>';
+    if (item.img) h += '<div class="q-fig"><img src="' + item.img + '" alt="figure" loading="lazy"></div>';
+    h += '<div class="q-tags">';
+    if (item.count > 1) h += '<span class="tag repeat">Repeated ' + item.count + 'x</span>';
+    item.years.forEach(function (y) { h += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
+    h += '</div></div>';
+    return h;
+  }
+
+  function renderChapter(idx, view) {
     var ch = DATA.chapters[idx];
     if (!ch) { renderHome(''); return; }
     var html = '';
     html += '<button class="back-btn" onclick="location.hash=\'#\'">‹ All chapters</button>';
     html += '<div class="chapter-head"><h2>Chapter ' + (idx + 1) + ': ' + esc(ch.name) + '</h2>'
       + '<div class="sub">' + ch.unique + ' unique questions (from ' + ch.raw + ' across 23 papers)</div></div>';
+    html += '<nav class="view-tabs">'
+      + '<a class="view-tab' + (view === 'patterns' ? '' : ' active') + '" href="#/chapter/' + idx + '">By marks</a>'
+      + '<a class="view-tab' + (view === 'patterns' ? ' active' : '') + '" href="#/chapter/' + idx + '/patterns">By patterns (' + (ch.groups ? ch.groups.length : 0) + ')</a>'
+      + '</nav>';
+    if (view === 'patterns' && ch.groups) {
+      ch.groups.forEach(function (g) {
+        html += '<section class="marks-section pattern-sec">'
+          + '<div class="pattern-head"><div class="pattern-name">' + esc(g.name) + '</div>'
+          + '<div class="pattern-meta"><span class="tag asked">asked ' + g.asked + 'x</span>';
+        g.years.forEach(function (y) { html += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
+        html += '</div></div>';
+        g.qs.forEach(function (item) { html += qCardHtml(item); });
+        html += '</section>';
+      });
+      app.innerHTML = html;
+      renderMath();
+      window.scrollTo(0, 0);
+      return;
+    }
     html += '<nav class="marks-nav">';
     MARKS_ORDER.forEach(function (m) {
       var qs = ch.marks[m];
@@ -110,14 +139,7 @@
       if (!qs || !qs.length) return;
       html += '<section class="marks-section" id="sec-' + m + '">'
         + '<div class="marks-title">' + m + '-mark questions <span class="count">' + qs.length + '</span></div>';
-      qs.forEach(function (item) {
-        html += '<div class="q-card"><div class="q-text">' + formatQ(item.q) + '</div>';
-        if (item.img) html += '<div class="q-fig"><img src="' + item.img + '" alt="figure" loading="lazy"></div>';
-        html += '<div class="q-tags">';
-        if (item.count > 1) html += '<span class="tag repeat">Repeated ' + item.count + 'x</span>';
-        item.years.forEach(function (y) { html += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
-        html += '</div></div>';
-      });
+      qs.forEach(function (item) { html += qCardHtml(item); });
       html += '</section>';
     });
     app.innerHTML = html;
@@ -145,8 +167,8 @@
 
   function route() {
     var h = location.hash;
-    var m = h.match(/^#\/chapter\/(\d+)/);
-    if (m) renderChapter(parseInt(m[1], 10));
+    var m = h.match(/^#\/chapter\/(\d+)(\/patterns)?/);
+    if (m) renderChapter(parseInt(m[1], 10), m[2] ? 'patterns' : 'marks');
     else renderHome('');
   }
 

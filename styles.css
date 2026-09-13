@@ -124,3 +124,13 @@ body {
 .tag.year.y2025 { background: #ccfbf1; color: #0f766e; }
 .tag.year.y2026 { background: #ffedd5; color: #c2410c; }
 .q-text br { display: block; content: ""; margin-top: 4px; }
+
+/* grouped view */
+.view-tabs { display: flex; gap: 8px; margin: 14px 0 4px; }
+.view-tab { flex: 1; text-align: center; padding: 10px 0; border-radius: 999px; background: #fff; color: #16913e; font-weight: 600; font-size: 14px; text-decoration: none; border: 1.5px solid #cdeed8; }
+.view-tab.active { background: #16913e; color: #fff; border-color: #16913e; }
+.pattern-sec { margin-top: 22px; }
+.pattern-head { background: #e5faed; border: 1px solid #cdeed8; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+.pattern-name { font-weight: 700; font-size: 15px; color: #1e1e1d; line-height: 1.35; }
+.pattern-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+.tag.asked { background: #16913e; color: #fff; font-weight: 700; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
