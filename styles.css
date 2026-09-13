@@ -34,8 +34,8 @@ body {
 }
 .search-box input:focus { border-color: var(--black); }
 
-/* chapter list = plain index, no cards */
-.chapter-list { display: flex; flex-direction: column; }
+/* chapter list = boxed index, same language as question cards */
+.chapter-list { display: flex; flex-direction: column; gap: 12px; }
 .chapter-list::before {
   content: 'Index';
   font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: 1.6rem; color: var(--black);
@@ -43,10 +43,9 @@ body {
 }
 .chapter-card {
   display: flex; align-items: center; gap: 12px;
-  padding: 15px 2px; text-decoration: none; color: inherit;
-  border-bottom: 1px solid var(--hair);
+  padding: 15px 16px; text-decoration: none; color: inherit;
+  background: #fff; border: 2.5px solid var(--black); border-radius: 14px;
 }
-.chapter-card:active { opacity: .55; }
 .ch-num { display: none; }
 .ch-info { flex: 1; min-width: 0; }
 .ch-name { font-family: 'Figtree', sans-serif; font-weight: 600; font-size: 1.08rem; color: var(--black); line-height: 1.3; }
@@ -140,3 +139,26 @@ body {
 
 .site-footer { padding: 26px 16px 44px; font-size: .85rem; color: var(--gray); text-align: center; }
 .katex-display { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+
+/* hover states - flat stamp lift, ink on paper */
+@media (hover: hover) {
+  .chapter-card, .view-tab, .marks-chip, .asked-toggle, .homi-btn {
+    transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+  }
+  .chapter-card:hover, .asked-toggle:hover, .homi-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--black);
+  }
+  .view-tab:not(.active):hover, .marks-chip:not(.active):hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2.5px 2.5px 0 var(--black);
+    border-color: var(--black);
+  }
+  .chapter-card:hover .ch-arrow { color: var(--black); }
+  .back-btn:hover { text-decoration: underline; }
+  .chapter-card:active, .view-tab:active, .marks-chip:active, .asked-toggle:active, .homi-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 0 0 0 var(--black);
+  }
+}
+.view-tab, .marks-chip, .asked-toggle { cursor: pointer; }
