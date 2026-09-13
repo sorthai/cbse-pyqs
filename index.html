@@ -6,27 +6,40 @@
 <title>Homi - Class 10 Maths Important Questions</title>
 <link rel="icon" href="homi-logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="styles.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>if (location.hash.indexOf('#/chapter') === 0) location.replace('app.html' + location.hash);</script>
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  .hero { position: fixed; inset: 0; background: url(hero-left.png) center/cover no-repeat; }
+  .hero-inner {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+    padding: 0 32px; text-align: center;
+  }
+  .hero-inner::before {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 360px; height: 340px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse, rgba(246,244,236,.85) 0%, rgba(246,244,236,.5) 55%, transparent 78%);
+    pointer-events: none;
+  }
+  .headline {
+    position: relative; font-family: 'Archivo Black', sans-serif; font-weight: 400;
+    font-size: 40px; line-height: 1.08; color: #111; letter-spacing: -0.5px;
+  }
+  .cta {
+    position: relative; font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 17px;
+    background: #111; color: #fff; text-decoration: none;
+    padding: 15px 38px; border-radius: 999px;
+  }
+  .cta:active { transform: scale(.97); }
+</style>
 </head>
 <body>
-<header class="site-header">
-  <div class="wrap header-row">
-    <img src="homi-logo.svg" alt="Homi" class="homi-logo">
-    <div>
-      <h1><span class="brand">Homi</span> Class 10 Maths</h1>
-      <p class="tagline">Important questions from CBSE board papers 2023, 2025, 2026 - 23 papers</p>
-    </div>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="headline">Most important previous year questions</div>
+    <a class="cta" href="app.html">Start practising</a>
   </div>
-</header>
-<main id="app" class="wrap"></main>
-<footer class="site-footer wrap">
-  <p>Built by <a href="https://heyhomi.in" style="color:inherit">Homi</a> - solve on paper. Repeated questions appear once with the years they came in.</p>
-</footer>
-<script src="data.js"></script>
-<script src="app.js"></script>
+</div>
 </body>
 </html>
