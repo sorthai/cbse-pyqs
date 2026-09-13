@@ -20,6 +20,52 @@
     }
   }
 
+
+  function formatQ(text) {
+    var escd = esc(text);
+    escd = escd.replace(/ (Reason\s*(?:\\\([^:]{0,14}|\(\s*R\s*\)\s*):)/, '<br>$1');
+    escd = escd.replace(/ ((?:Answer with codes|Choose the correct option|Choose)\s*:)/, '<br>$1');
+    escd = escd.replace(/ OR (?=\()/, '<br>OR ');
+    var markers = [];
+    var inMath = 0;
+    for (var i = 0; i < escd.length - 2; i++) {
+      if (escd[i] === '\\' && (escd[i+1] === '(' || escd[i+1] === '[')) { inMath++; i++; continue; }
+      if (escd[i] === '\\' && (escd[i+1] === ')' || escd[i+1] === ']')) { inMath = Math.max(0, inMath-1); i++; continue; }
+      if (inMath) continue;
+      if (escd[i] === '(') {
+        var c = escd[i+1];
+        if ((c >= 'A' && c <= 'D' || c >= 'a' && c <= 'd') && escd[i+2] === ')') {
+          var prev = i > 0 ? escd[i-1] : ' ';
+          var before = escd.slice(Math.max(0, i - 10), i);
+          if (!/[A-Za-z0-9]/.test(prev) && !/assertion\s*$/i.test(before)) markers.push({ pos: i, c: c });
+        }
+      }
+    }
+    var upper = 'ABCD', lower = 'abcd';
+    function findRun(seq) {
+      for (var s = 0; s < markers.length; s++) {
+        if (markers[s].c !== seq[0]) continue;
+        var k = 1, idxs = [s];
+        for (var j = s + 1; j < markers.length && k < seq.length; j++) {
+          if (markers[j].c === seq[k]) { idxs.push(j); k++; }
+          else if (markers[j].c === seq[k-1]) { continue; }
+          else break;
+        }
+        if (k === seq.length) return idxs;
+      }
+      return null;
+    }
+    var run = findRun(upper) || findRun(lower) || findRun(upper.slice(0,3)) || findRun(lower.slice(0,3));
+    if (!run) return escd;
+    var out = escd, off = 0;
+    run.forEach(function (mi) {
+      var p = markers[mi].pos + off;
+      out = out.slice(0, p) + '<br>' + out.slice(p);
+      off += 4;
+    });
+    return out;
+  }
+
   function renderHome(filter) {
     var q = (filter || '').toLowerCase();
     var html = '';
@@ -65,11 +111,11 @@
       html += '<section class="marks-section" id="sec-' + m + '">'
         + '<div class="marks-title">' + m + '-mark questions <span class="count">' + qs.length + '</span></div>';
       qs.forEach(function (item) {
-        html += '<div class="q-card"><div class="q-text">' + esc(item.q) + '</div>';
+        html += '<div class="q-card"><div class="q-text">' + formatQ(item.q) + '</div>';
         if (item.img) html += '<div class="q-fig"><img src="' + item.img + '" alt="figure" loading="lazy"></div>';
         html += '<div class="q-tags">';
         if (item.count > 1) html += '<span class="tag repeat">Repeated ' + item.count + 'x</span>';
-        item.years.forEach(function (y) { html += '<span class="tag year">' + esc(y) + '</span>'; });
+        item.years.forEach(function (y) { html += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
         html += '</div></div>';
       });
       html += '</section>';
@@ -80,12 +126,16 @@
     chips.forEach(function (chip) {
       chip.addEventListener('click', function (e) {
         e.preventDefault();
+        chips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
         var t = document.getElementById(chip.getAttribute('data-target'));
         if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
     var m = location.hash.match(/\/m(\d)$/);
     if (m) {
+      var activeChip = app.querySelector('.marks-chip[data-target="sec-' + m[1] + '"]');
+      if (activeChip) activeChip.classList.add('active');
       var t = document.getElementById('sec-' + m[1]);
       if (t) setTimeout(function () { t.scrollIntoView({ block: 'start' }); }, 50);
     } else {

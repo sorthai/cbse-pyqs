@@ -110,3 +110,13 @@ body {
 }
 
 .katex-display { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+
+.marks-chip { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  background: #fff; border: 1.5px solid var(--border); box-shadow: 0 1px 3px rgba(15,23,42,.06);
+  transition: background .15s, color .15s, border-color .15s; }
+.marks-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+.marks-chip:active { transform: scale(.96); }
+.tag.year.y2023 { background: #ede9fe; color: #6d28d9; }
+.tag.year.y2025 { background: #ccfbf1; color: #0f766e; }
+.tag.year.y2026 { background: #ffedd5; color: #c2410c; }
+.q-text br { display: block; content: ""; margin-top: 4px; }
