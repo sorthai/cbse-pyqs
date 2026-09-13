@@ -70,6 +70,21 @@
     var q = (filter || '').toLowerCase();
     var html = '';
     html += '<div class="search-box"><input id="search" type="search" placeholder="Search chapters..." value="' + esc(filter || '') + '"></div>';
+    if (!q) {
+      var tops = [];
+      DATA.chapters.forEach(function (ch, i) {
+        (ch.groups || []).forEach(function (g) { tops.push({ ch: i, chName: ch.name, title: g.title || g.name, asked: g.asked }); });
+      });
+      tops.sort(function (a, b) { return b.asked - a.asked; });
+      html += '<div class="hot-head">Most asked in the exam</div><div class="hot-list">';
+      tops.slice(0, 8).forEach(function (t) {
+        html += '<a class="hot-row" href="#/chapter/' + t.ch + '">'
+          + '<div class="hot-info"><div class="hot-title">' + esc(t.title) + '</div>'
+          + '<div class="hot-ch">' + esc(t.chName) + '</div></div>'
+          + '<span class="tag asked">' + t.asked + 'x</span></a>';
+      });
+      html += '</div>';
+    }
     html += '<div class="chapter-list">';
     DATA.chapters.forEach(function (ch, i) {
       if (q && ch.name.toLowerCase().indexOf(q) === -1) return;
@@ -108,22 +123,45 @@
     html += '<div class="chapter-head"><h2>Chapter ' + (idx + 1) + ': ' + esc(ch.name) + '</h2>'
       + '<div class="sub">' + ch.unique + ' unique questions (from ' + ch.raw + ' across 23 papers)</div></div>';
     html += '<nav class="view-tabs">'
-      + '<a class="view-tab' + (view === 'patterns' ? '' : ' active') + '" href="#/chapter/' + idx + '">By marks</a>'
-      + '<a class="view-tab' + (view === 'patterns' ? ' active' : '') + '" href="#/chapter/' + idx + '/patterns">By patterns (' + (ch.groups ? ch.groups.length : 0) + ')</a>'
+      + '<a class="view-tab' + (view === 'marks' ? '' : ' active') + '" href="#/chapter/' + idx + '">Most asked (' + (ch.groups ? ch.groups.length : 0) + ')</a>'
+      + '<a class="view-tab' + (view === 'marks' ? ' active' : '') + '" href="#/chapter/' + idx + '/marks">By marks</a>'
       + '</nav>';
-    if (view === 'patterns' && ch.groups) {
-      ch.groups.forEach(function (g) {
+    if (view !== 'marks' && ch.groups) {
+      ch.groups.forEach(function (g, gi) {
+        var ex = g.qs.slice().sort(function (a, b) {
+          return (b.count - a.count) || (Math.max.apply(null, b.years.map(Number)) - Math.max.apply(null, a.years.map(Number)));
+        })[0];
+        var rest = g.qs.filter(function (qq) { return qq !== ex; });
         html += '<section class="marks-section pattern-sec">'
-          + '<div class="pattern-head"><div class="pattern-name">' + esc(g.name) + '</div>'
-          + '<div class="pattern-meta"><span class="tag asked">asked ' + g.asked + 'x</span>';
+          + '<div class="pattern-head pat-toggle" data-pat="' + gi + '" role="button">'
+          + '<div class="pattern-top"><div class="pattern-name">' + esc(g.title || g.name) + '</div>'
+          + '<span class="pat-chev">&#9662;</span></div>'
+          + '<div class="pattern-meta"><span class="tag asked">asked ' + g.asked + ' times in 3 years</span>';
         g.years.forEach(function (y) { html += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
-        html += '</div></div>';
-        g.qs.forEach(function (item) { html += qCardHtml(item); });
-        html += '</section>';
+        html += '</div></div>'
+          + '<div class="pattern-body">';
+        if (ex) html += qCardHtml(ex);
+        html += '<div class="pattern-rest" style="display:none">';
+        rest.forEach(function (item) { html += qCardHtml(item); });
+        html += '</div>';
+        if (rest.length) html += '<button class="pat-toggle pat-more" data-total="' + g.qs.length + '" data-pat="' + gi + '">Show all ' + g.qs.length + ' questions</button>';
+        html += '</div></section>';
       });
       app.innerHTML = html;
       renderMath();
       window.scrollTo(0, 0);
+      app.querySelectorAll('.pat-toggle').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var sec = el.closest('.pattern-sec');
+          var restEl = sec.querySelector('.pattern-rest');
+          if (!restEl) return;
+          var open = restEl.style.display !== 'none';
+          restEl.style.display = open ? 'none' : '';
+          sec.classList.toggle('open', !open);
+          var btn = sec.querySelector('.pat-more');
+          if (btn) btn.textContent = open ? ('Show all ' + btn.getAttribute('data-total') + ' questions') : 'Show less';
+        });
+      });
       return;
     }
     html += '<nav class="marks-nav">';
@@ -167,8 +205,8 @@
 
   function route() {
     var h = location.hash;
-    var m = h.match(/^#\/chapter\/(\d+)(\/patterns)?/);
-    if (m) renderChapter(parseInt(m[1], 10), m[2] ? 'patterns' : 'marks');
+    var m = h.match(/^#\/chapter\/(\d+)(\/marks)?/);
+    if (m) renderChapter(parseInt(m[1], 10), m[2] ? 'marks' : 'patterns');
     else renderHome('');
   }
 
