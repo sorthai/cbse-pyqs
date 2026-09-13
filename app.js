@@ -5,9 +5,9 @@
   var WORDS = { '1': 'one-mark', '2': 'two-mark', '3': 'three-mark', '4': 'four-mark', '5': 'five-mark' };
 
   // === HOMI DEEP LINK CONFIG ===
-  // Swap this ONE value when the real Homi app deep link arrives from the team.
-  // Used by both "Check answer on Homi" and "Get model answer on Homi" buttons on every question card.
-  var HOMI_DEEP_LINK = 'https://heyhomi.in';
+  // Real deep links from the Homi team. "Check answer" -> Evaluation screen, "Get model answer" -> Solution screen.
+  var HOMI_CHECK_LINK = 'https://link.staging.heyhomi.in/?screen=Evaluation&utm_source=google&utm_medium=cpa&utm_campaign=install-q2-2026&utm_content=banner-v1&utm_term=english';
+  var HOMI_MODEL_LINK = 'https://link.staging.heyhomi.in/?screen=Solution&utm_source=google&utm_medium=cpa&utm_campaign=install-q2-2026&utm_content=banner-v1&utm_term=english';
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -77,8 +77,8 @@
     item.years.forEach(function (y) { h += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
     h += '</div>';
     h += '<div class="homi-actions">'
-      + '<a class="homi-btn" href="' + HOMI_DEEP_LINK + '" target="_blank" rel="noopener">Check answer on Homi</a>'
-      + '<a class="homi-btn solid" href="' + HOMI_DEEP_LINK + '" target="_blank" rel="noopener">Get model answer on Homi</a>'
+      + '<a class="homi-btn" href="' + HOMI_CHECK_LINK + '" target="_blank" rel="noopener">Check answer on Homi</a>'
+      + '<a class="homi-btn solid" href="' + HOMI_MODEL_LINK + '" target="_blank" rel="noopener">Get model answer on Homi</a>'
       + '</div></div>';
     return h;
   }
