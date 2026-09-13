@@ -129,7 +129,7 @@
         chips.forEach(function (c) { c.classList.remove('active'); });
         chip.classList.add('active');
         var t = document.getElementById(chip.getAttribute('data-target'));
-        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (t) t.scrollIntoView({ behavior: 'instant', block: 'start' });
       });
     });
     var m = location.hash.match(/\/m(\d)$/);
