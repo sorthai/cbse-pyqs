@@ -17,11 +17,9 @@
     background:
       radial-gradient(ellipse 92% 44% at 50% 45%, rgba(246,244,236,.84) 0%, rgba(246,244,236,.55) 55%, rgba(246,244,236,0) 82%);
   }
-  .brand-mark {
-    position: absolute; top: 22px; left: 26px; z-index: 2;
-    font-family: 'Archivo Black', sans-serif; font-weight: 400;
-    font-size: 20px; color: #111; letter-spacing: -0.3px; text-decoration: none;
-  }
+  .brand-mark { position: absolute; top: 20px; left: 24px; z-index: 2; }
+  .brand-mark img { width: 40px; height: 40px; display: block; border-radius: 10px; }
+  @media (min-width: 820px) { .brand-mark img { width: 46px; height: 46px; border-radius: 12px; } }
   @media (min-width: 820px) {
     .hero { background-image: url(hero-full.png); }
   }
@@ -53,7 +51,7 @@
 </head>
 <body>
 <div class="hero">
-  <a class="brand-mark" href="https://heyhomi.in">Homi</a>
+  <a class="brand-mark" href="https://heyhomi.in"><img src="homi-logo.svg" alt="Homi"></a>
   <div class="hero-inner">
     <div class="headline">Most Important Question</div>
     <div class="subline">Based on previous year papers</div>
