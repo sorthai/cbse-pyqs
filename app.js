@@ -77,15 +77,15 @@
     item.years.forEach(function (y) { h += '<span class="tag year y' + esc(y) + '">' + esc(y) + '</span>'; });
     h += '</div>';
     h += '<div class="homi-actions">'
-      + '<a class="homi-btn" href="' + HOMI_CHECK_LINK + '" target="_blank" rel="noopener">Check answer on Homi</a>'
-      + '<a class="homi-btn solid" href="' + HOMI_MODEL_LINK + '" target="_blank" rel="noopener">Get model answer on Homi</a>'
+      + '<a class="homi-btn" href="' + HOMI_CHECK_LINK + '" target="_blank" rel="noopener">Check answer</a>'
+      + '<a class="homi-btn solid" href="' + HOMI_MODEL_LINK + '" target="_blank" rel="noopener">Get model answer</a>'
       + '</div></div>';
     return h;
   }
 
-  // One true count: total times this pattern appeared across all 23 papers.
-  function groupAsked(g) {
-    return g.qs.reduce(function (s, x) { return s + (x.count || (x.apps ? x.apps.length : 1)); }, 0);
+  // One true count: total times these questions appeared across all 23 papers.
+  function sliceAsked(qs) {
+    return qs.reduce(function (s, x) { return s + (x.count || (x.apps ? x.apps.length : 1)); }, 0);
   }
 
   function byRecentThenCount(a, b) {
@@ -93,15 +93,13 @@
       || ((b.count || 1) - (a.count || 1));
   }
 
-  // A group rendered as: the latest year's question (verbatim) + a dropdown
+  // A consolidated unit: the latest year's question (verbatim) + a dropdown
   // "asked N times in exam" revealing the rest of the similar questions.
-  function groupSectionHtml(g, opts) {
-    opts = opts || {};
-    var ex = g.qs.slice().sort(byRecentThenCount)[0];
-    var rest = g.qs.filter(function (qq) { return qq !== ex; }).sort(byRecentThenCount);
-    var asked = groupAsked(g);
+  function groupSectionHtml(qs) {
+    var ex = qs.slice().sort(byRecentThenCount)[0];
+    var rest = qs.filter(function (qq) { return qq !== ex; }).sort(byRecentThenCount);
+    var asked = sliceAsked(qs);
     var h = '<section class="marks-section pattern-sec">';
-    if (opts.chLink) h += '<a class="hot-ch-link" href="#/chapter/' + opts.chIdx + '">' + esc(opts.chName) + ' &rsaquo;</a>';
     h += qCardHtml(ex);
     if (rest.length) {
       h += '<div class="pattern-rest" style="display:none">';
@@ -128,21 +126,23 @@
     });
   }
 
+  function bindChips() {
+    var chips = app.querySelectorAll('.marks-chip');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
+        e.preventDefault();
+        chips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        var t = document.getElementById(chip.getAttribute('data-target'));
+        if (t) t.scrollIntoView({ behavior: 'instant', block: 'start' });
+      });
+    });
+  }
+
   function renderHome(filter) {
     var q = (filter || '').toLowerCase();
     var html = '';
     html += '<div class="search-box"><input id="search" type="search" placeholder="Search chapters..." value="' + esc(filter || '') + '"></div>';
-    if (!q) {
-      var tops = [];
-      DATA.chapters.forEach(function (ch, i) {
-        (ch.groups || []).forEach(function (g) { tops.push({ ch: i, chName: ch.name, g: g, asked: groupAsked(g) }); });
-      });
-      tops.sort(function (a, b) { return b.asked - a.asked; });
-      html += '<div class="hot-head">Most asked in the exam</div>';
-      tops.slice(0, 8).forEach(function (t) {
-        html += groupSectionHtml(t.g, { chLink: true, chIdx: t.ch, chName: 'Ch ' + (t.ch + 1) + ' · ' + t.chName });
-      });
-    }
     html += '<div class="chapter-list">';
     DATA.chapters.forEach(function (ch, i) {
       if (q && ch.name.toLowerCase().indexOf(q) === -1) return;
@@ -159,7 +159,6 @@
     });
     html += '</div>';
     app.innerHTML = html;
-    if (!q) { renderMath(); bindToggles(); }
     var input = document.getElementById('search');
     input.addEventListener('input', function () { renderHome(input.value); input.focus(); });
   }
@@ -172,15 +171,43 @@
     html += '<div class="chapter-head"><h2>Chapter ' + (idx + 1) + ': ' + esc(ch.name) + '</h2>'
       + '<div class="sub">' + ch.unique + ' unique questions (from ' + ch.raw + ' across 23 papers)</div></div>';
     html += '<nav class="view-tabs">'
-      + '<a class="view-tab' + (view === 'marks' ? '' : ' active') + '" href="#/chapter/' + idx + '">Most asked (' + (ch.groups ? ch.groups.length : 0) + ')</a>'
+      + '<a class="view-tab' + (view === 'marks' ? '' : ' active') + '" href="#/chapter/' + idx + '">Most asked</a>'
       + '<a class="view-tab' + (view === 'marks' ? ' active' : '') + '" href="#/chapter/' + idx + '/marks">By marks</a>'
       + '</nav>';
+    var desc = MARKS_ORDER.slice().reverse();
     if (view !== 'marks' && ch.groups) {
-      var gs = ch.groups.slice().sort(function (a, b) { return groupAsked(b) - groupAsked(a); });
-      gs.forEach(function (g) { html += groupSectionHtml(g); });
+      // Most asked: same marks-descending segregation as By marks,
+      // but with similar questions consolidated into one-question + dropdown units.
+      var markOf = {};
+      MARKS_ORDER.forEach(function (m) { (ch.marks[m] || []).forEach(function (it) { markOf[it.q] = m; }); });
+      var perMark = {};
+      ch.groups.forEach(function (g) {
+        MARKS_ORDER.forEach(function (m) {
+          var qs = g.qs.filter(function (x) { return markOf[x.q] === m; });
+          if (qs.length) (perMark[m] = perMark[m] || []).push(qs);
+        });
+      });
+      html += '<nav class="marks-nav">';
+      desc.forEach(function (m) {
+        var units = perMark[m];
+        if (!units || !units.length) return;
+        html += '<a class="marks-chip" href="#/chapter/' + idx + '" data-target="sec-' + m + '">'
+          + m + '-mark (' + units.length + ')</a>';
+      });
+      html += '</nav>';
+      desc.forEach(function (m) {
+        var units = perMark[m];
+        if (!units || !units.length) return;
+        units.sort(function (a, b) { return sliceAsked(b) - sliceAsked(a); });
+        html += '<section class="marks-section" id="sec-' + m + '">'
+          + '<div class="marks-title">' + m + '-mark questions <span class="count">' + units.length + '</span></div>';
+        units.forEach(function (qs) { html += groupSectionHtml(qs); });
+        html += '</section>';
+      });
       app.innerHTML = html;
       renderMath();
       bindToggles();
+      bindChips();
       window.scrollTo(0, 0);
       return;
     }
@@ -202,16 +229,7 @@
     });
     app.innerHTML = html;
     renderMath();
-    var chips = app.querySelectorAll('.marks-chip');
-    chips.forEach(function (chip) {
-      chip.addEventListener('click', function (e) {
-        e.preventDefault();
-        chips.forEach(function (c) { c.classList.remove('active'); });
-        chip.classList.add('active');
-        var t = document.getElementById(chip.getAttribute('data-target'));
-        if (t) t.scrollIntoView({ behavior: 'instant', block: 'start' });
-      });
-    });
+    bindChips();
     var m = location.hash.match(/\/m(\d)$/);
     if (m) {
       var activeChip = app.querySelector('.marks-chip[data-target="sec-' + m[1] + '"]');
